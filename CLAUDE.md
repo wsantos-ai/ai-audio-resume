@@ -77,7 +77,14 @@ rotas de escrita e envolva handlers com `handler()` de `lib/server/http.ts` para
   `"YYYY-MM-DD HH:MM:SS"`). O navegador envia ISO em UTC na gravação e `YYYY-MM-DDTHH:MM` local no formulário;
   `normalizeDate()` em `visits.ts` trata os dois casos.
 - Service Worker (`public/sw.js`): cache-first para `/_next/static/`, network-first para o resto, nunca cacheia
-  `/api/`. Aumente `CACHE_VERSION` ao mudar a estratégia ou a lista `PRECACHE`.
+  `/api/`. Aumente `CACHE_VERSION` ao mudar a estratégia ou os arquivos da lista `PRECACHE` (ex.: ícones). Ele só é
+  registrado em produção; em `next dev` o `AppProvider` o remove, pois os chunks sem hash ficariam desatualizados no
+  cache (sintoma: erro de hidratação com valores antigos).
+- Visual: a tela de login segue `prototipo.png` (painel azul com onda + cartão de prévia no desktop; marca e onda no
+  topo no mobile, abaixo de 900px). As cores são variáveis CSS em `:root` de `globals.css` (azul-marinho
+  `--navy-*`/`--primary`, destaque `--accent`), com versão para tema escuro; use os tokens em vez de cores
+  fixas. Ícones em `components/icons.tsx` (SVG inline, sem biblioteca) e a onda é gerada por
+  `components/WaveLines.tsx`. A fonte Inter vem do Google Fonts por `<link>` no `layout.tsx`.
 - Chamadas à OpenRouter sempre enviam `provider.data_collection = deny` (LGPD); mantenha em novas chamadas.
 - SQL: use aspas simples em literais (aspas duplas quebram com `ANSI_QUOTES`).
 - Textos da interface, prompts, comentários e documentação em português do Brasil; identificadores em inglês.

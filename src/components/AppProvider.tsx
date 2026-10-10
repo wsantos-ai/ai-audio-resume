@@ -116,7 +116,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Service Worker, armazenamento persistente e verificação da sessão
   useEffect(() => {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    if ('serviceWorker' in navigator) {
+      if (process.env.NODE_ENV === 'production') {
+        navigator.serviceWorker.register('/sw.js');
+      } else {
+        // Em dev os arquivos de /_next/static/ não têm hash: o cache-first do SW serviria JS desatualizado
+        navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
+        caches?.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+      }
+    }
     navigator.storage?.persist?.(); // evita que o navegador apague a fila offline
     setOnline(navigator.onLine);
     refreshPending();

@@ -2,7 +2,7 @@
 // - /_next/static/*: arquivos com hash no nome (imutáveis) → cache-first
 // - páginas e demais arquivos → network-first, caindo para o cache quando offline
 // Aumente CACHE_VERSION quando mudar a estratégia de cache ou a lista PRECACHE.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE = `visitas-${CACHE_VERSION}`;
 const PRECACHE = ['/', '/historico', '/login', '/manifest.webmanifest', '/pcm-worklet.js', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
 

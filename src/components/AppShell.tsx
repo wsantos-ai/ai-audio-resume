@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { api } from '@/lib/client/api';
 import { useApp } from './AppProvider';
+import { LogoMark } from './icons';
 
 /** Barra superior, navegação inferior, toast e proteção das telas que exigem login. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -22,12 +23,31 @@ export function AppShell({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  const canRender = isLogin || (authReady && user);
+  const toast = toastMessage && (
+    <div className="toast" role="status">
+      {toastMessage}
+    </div>
+  );
+
+  // O login tem layout próprio, em tela cheia (sem barra superior e navegação)
+  if (isLogin) {
+    return (
+      <>
+        {children}
+        {toast}
+      </>
+    );
+  }
+
+  const canRender = authReady && user;
 
   return (
     <>
       <header className="topbar">
-        <h1>Resumo de Visitas</h1>
+        <div className="topbar-brand">
+          <LogoMark size={26} />
+          <h1>Resumo de Visitas</h1>
+        </div>
         {user && (
           <div className="topbar-user">
             <span>{user.name}</span>
@@ -44,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main>{canRender ? children : null}</main>
 
-      {user && !isLogin && !recording && (
+      {user && !recording && (
         <nav className="tabbar">
           <Link href="/" className={pathname === '/' ? 'active' : ''}>
             Gravar
@@ -55,11 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
       )}
 
-      {toastMessage && (
-        <div className="toast" role="status">
-          {toastMessage}
-        </div>
-      )}
+      {toast}
     </>
   );
 }
