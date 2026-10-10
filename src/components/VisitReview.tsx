@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client/api';
 import { formatDate, formatDuration } from '@/lib/client/format';
 import { STATUS_LABELS, type Visit, type VisitAction, type VisitUpdate } from '@/lib/types';
@@ -66,6 +67,7 @@ function shareText(data: VisitUpdate) {
 
 export function VisitReview({ id }: { id: number }) {
   const { toast } = useApp();
+  const router = useRouter();
   const [visit, setVisit] = useState<Visit | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
@@ -96,14 +98,19 @@ export function VisitReview({ id }: { id: number }) {
     setSaving(true);
     try {
       const { visit } = await api.saveVisit(id, toUpdate(form!, status));
+      if (status === 'confirmed') {
+        // Visita concluída: volta para a gravação da próxima
+        toast('Visita confirmada.');
+        router.push('/');
+        return;
+      }
       setVisit(visit);
       setForm(toForm(visit));
-      toast(status === 'confirmed' ? 'Visita confirmada.' : 'Rascunho salvo.');
+      toast('Rascunho salvo.');
     } catch (err) {
       toast((err as Error).message);
-    } finally {
-      setSaving(false);
     }
+    setSaving(false);
   }
 
   async function share() {
