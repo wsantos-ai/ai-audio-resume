@@ -5,18 +5,33 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   create-pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Criar Pull Request de develop para main
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: "develop"
-          destination_branch: "main"
-          pr_title: "Sync: develop -> main"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # Se já existe um PR aberto develop -> main, o push só atualiza esse PR
+          existing=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing já está aberto; nada a fazer."
+            exit 0
+          fi
+
+          # Não cria PR vazio (develop sem commits novos em relação à main)
+          ahead=$(gh api "repos/$GH_REPO/compare/main...develop" --jq '.ahead_by')
+          if [ "$ahead" = "0" ]; then
+            echo "develop não tem commits novos em relação à main."
+            exit 0
+          fi
+
+          gh pr create --base main --head develop \
+            --title "Sync: develop -> main" \
+            --body "PR criado automaticamente a partir do push em develop (${GITHUB_SHA::7})."
