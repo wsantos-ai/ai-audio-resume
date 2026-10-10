@@ -1,0 +1,22 @@
+name: Sync develop -> main (PR)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Criar Pull Request de develop para main
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "develop"
+          destination_branch: "main"
+          pr_title: "Sync: develop -> main"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
