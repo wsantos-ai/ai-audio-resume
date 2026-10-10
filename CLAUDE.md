@@ -13,7 +13,8 @@ TypeScript, sem Tailwind — CSS puro em `src/app/globals.css`), `mysql2` sem OR
 
 ```bash
 npm run dev                                          # servidor de desenvolvimento (precisa de .env.local + MySQL)
-npm run build                                        # build de produção (também roda a checagem de tipos)
+npm run build                                        # build de produção com webpack (também checa tipos)
+NEXT_TEST_WASM=1 npm run build                       # simula o build da Hostinger (SWC em WebAssembly)
 npm run typecheck                                    # só TypeScript (tsc --noEmit)
 npm run create-user -- email "Nome" [avaliador|admin] # cria/atualiza usuário (não existe tela de cadastro)
 mysql -u USER -p DB < database/schema.sql            # cria as tabelas
@@ -63,6 +64,11 @@ rotas de escrita e envolva handlers com `handler()` de `lib/server/http.ts` para
 
 ## Convenções e armadilhas
 
+- **Build compatível com a Hostinger:** a glibc do servidor é antiga demais para o binário nativo do SWC
+  (`GLIBC_2.29 not found`), então o Next cai para o SWC em WebAssembly. Por isso o config é `next.config.mjs`
+  (não `.ts`, que precisa ser transpilado e falha com WASM) e o build usa `next build --webpack` (o Turbopack exige
+  binário nativo). Não volte para `next.config.ts` nem remova o `--webpack`, e evite recursos que dependem do SWC
+  nativo (ex.: `next/font`). O `next dev` local pode continuar com Turbopack.
 - **Não crie `src/proxy.ts`/middleware que intercepte `/api/process`:** com proxy ativo o Next limita o corpo da
   requisição a 10 MB, e um WAV de 15 min tem ~29 MB.
 - Limite de duração em dois lugares que devem coincidir: `MAX_AUDIO_SECONDS` (servidor) e

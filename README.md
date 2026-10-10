@@ -44,6 +44,9 @@ Outros comandos: `npm run typecheck` (TypeScript) e `npm run build && npm start`
 1. hPanel → Bancos de dados MySQL: crie o banco e o usuário; importe `database/schema.sql` pelo phpMyAdmin.
 2. Crie um site do tipo Node.js apontando para o repositório GitHub (ou envie o projeto em .zip, sem `node_modules` e `.next`).
 3. Configure: Node.js 22, comando de build `npm run build`, comando de início `npm start`.
+   O servidor da Hostinger tem uma glibc antiga, sem suporte ao SWC nativo do Next; o projeto já está preparado para
+   isso (`next.config.mjs` + `next build --webpack`). Os avisos `GLIBC_2.29 not found` e o download do
+   `@next/swc-wasm-nodejs` no log são esperados. Para simular localmente: `NEXT_TEST_WASM=1 npm run build`.
 4. Cadastre as variáveis de ambiente do `.env.example` no painel (`DB_*`, `SESSION_SECRET`, `OPENROUTER_*`, `APP_URL`
    com o domínio em HTTPS etc.).
 5. Ative o SSL do domínio. HTTPS é obrigatório: sem ele o navegador bloqueia o microfone e o Service Worker.
